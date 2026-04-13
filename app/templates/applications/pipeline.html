@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Application Pipeline — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Application Pipeline</h1>
+            <p class="mt-1 text-sm text-gray-500">Drag-free Kanban view — use the dropdown on each card to move applications between stages.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            {% if jobs is defined and jobs %}
+            <form method="GET" action="/applications/pipeline" class="flex items-center gap-2">
+                <label for="job_id" class="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Job:</label>
+                <select id="job_id" name="job_id" onchange="this.form.submit()" class="block w-full min-w-[200px] rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-1.5 px-3 border">
+                    <option value="">All Jobs</option>
+                    {% for job in jobs %}
+                    <option value="{{ job.id }}" {% if selected_job_id is defined and selected_job_id == job.id %}selected{% endif %}>{{ job.title }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            {% endif %}
+            <a href="/applications" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                </svg>
+                List View
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="kanban-board">
+    {% set stages = ["Applied", "Screening", "Interview", "Offer", "Hired", "Rejected"] %}
+    {% set stage_keys = {"Applied": "applied", "Screening": "screening", "Interview": "interview", "Offer": "offer", "Hired": "hired", "Rejected": "rejected"} %}
+    {% set stage_colors = {
+        "Applied": {"bg": "bg-indigo-50", "text": "text-indigo-700", "border": "border-indigo-200", "badge_bg": "bg-indigo-100", "badge_text": "text-indigo-800", "dot": "bg-indigo-500"},
+        "Screening": {"bg": "bg-cyan-50", "text": "text-cyan-700", "border": "border-cyan-200", "badge_bg": "bg-cyan-100", "badge_text": "text-cyan-800", "dot": "bg-cyan-500"},
+        "Interview": {"bg": "bg-amber-50", "text": "text-amber-700", "border": "border-amber-200", "badge_bg": "bg-amber-100", "badge_text": "text-amber-800", "dot": "bg-amber-500"},
+        "Offer": {"bg": "bg-emerald-50", "text": "text-emerald-700", "border": "border-emerald-200", "badge_bg": "bg-emerald-100", "badge_text": "text-emerald-800", "dot": "bg-emerald-500"},
+        "Hired": {"bg": "bg-green-50", "text": "text-green-700", "border": "border-green-200", "badge_bg": "bg-green-100", "badge_text": "text-green-800", "dot": "bg-green-500"},
+        "Rejected": {"bg": "bg-red-50", "text": "text-red-700", "border": "border-red-200", "badge_bg": "bg-red-100", "badge_text": "text-red-800", "dot": "bg-red-500"}
+    } %}
+    {% set allowed_transitions = {
+        "Applied": ["Screening", "Rejected", "Withdrawn"],
+        "Screening": ["Interview", "Rejected", "Withdrawn"],
+        "Interview": ["Offer", "Rejected", "Withdrawn"],
+        "Offer": ["Hired", "Rejected", "Withdrawn"],
+        "Hired": [],
+        "Rejected": []
+    } %}
+
+    {% for stage in stages %}
+    {% set stage_key = stage_keys[stage] %}
+    {% set colors = stage_colors[stage] %}
+    {% set apps = columns.get(stage, []) if columns is defined else [] %}
+    <div class="kanban-column" data-stage="{{ stage_key }}">
+        <div class="kanban-column-header {{ colors.bg }} {{ colors.text }}">
+            <div class="flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full {{ colors.dot }}"></span>
+                <span>{{ stage }}</span>
+            </div>
+            <span class="count-badge">{{ apps | length }}</span>
+        </div>
+        <div class="kanban-column-body">
+            {% if apps %}
+                {% for app in apps %}
+                <div class="kanban-card">
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <div class="min-w-0 flex-1">
+                            <a href="/candidates/{{ app.candidate_id }}" class="text-sm font-semibold text-gray-900 hover:text-indigo-600 transition-colors truncate block">
+                                {% if app.candidate_name is defined and app.candidate_name %}
+                                    {{ app.candidate_name }}
+                                {% else %}
+                                    Candidate #{{ app.candidate_id }}
+                                {% endif %}
+                            </a>
+                            <a href="/jobs/{{ app.job_id }}" class="text-xs text-gray-500 hover:text-indigo-500 transition-colors truncate block mt-0.5">
+                                {% if app.job_title is defined and app.job_title %}
+                                    {{ app.job_title }}
+                                {% else %}
+                                    Job #{{ app.job_id }}
+                                {% endif %}
+                            </a>
+                        </div>
+                        <a href="/applications/{{ app.id }}" class="flex-shrink-0 text-gray-400 hover:text-indigo-600 transition-colors" title="View details">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="status-badge {{ 'status-open' if stage == 'Applied' else 'status-pending' if stage == 'Screening' else 'status-pending' if stage == 'Interview' else 'status-active' if stage == 'Offer' else 'status-active' if stage == 'Hired' else 'status-rejected' }}">
+                            {{ stage }}
+                        </span>
+                        {% if app.applied_at is defined and app.applied_at %}
+                        <span class="text-xs text-gray-400">{{ app.applied_at.strftime('%b %d') if app.applied_at is not string else app.applied_at }}</span>
+                        {% endif %}
+                    </div>
+
+                    {% set transitions = allowed_transitions.get(stage, []) %}
+                    {% if transitions %}
+                    <form method="POST" action="/applications/{{ app.id }}/status" class="mt-2 pt-2 border-t border-gray-100">
+                        <div class="flex items-center gap-1.5">
+                            <label for="status-{{ app.id }}" class="sr-only">Move to</label>
+                            <select id="status-{{ app.id }}" name="status" class="block w-full text-xs rounded border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-1 px-2 border bg-gray-50">
+                                <option value="" disabled selected>Move to…</option>
+                                {% for next_status in transitions %}
+                                <option value="{{ next_status }}">{{ next_status }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="flex-shrink-0 inline-flex items-center justify-center w-7 h-7 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1" title="Update status">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state py-8">
+                    <svg class="w-8 h-8 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
+                    </svg>
+                    <p class="text-xs text-gray-400">No applications</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not columns or (columns.values() | list | sum(start=[]) | length == 0) %}
+<div class="mt-8 text-center py-12">
+    <div class="empty-state">
+        <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+        </svg>
+        <p class="empty-title">No applications yet</p>
+        <p class="empty-description">Applications will appear here once candidates apply to job postings.</p>
+        <a href="/applications" class="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            View All Applications
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var forms = document.querySelectorAll('form[action*="/status"]');
+    forms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            var select = form.querySelector('select[name="status"]');
+            if (!select || !select.value) {
+                e.preventDefault();
+                select.focus();
+                select.classList.add('ring-2', 'ring-red-400', 'border-red-400');
+                setTimeout(function() {
+                    select.classList.remove('ring-2', 'ring-red-400', 'border-red-400');
+                }, 2000);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Jobs — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Job Postings</h1>
+            <p class="mt-1 text-sm text-gray-500">Manage and track all open positions across departments.</p>
+        </div>
+        {% if user and user.role in ['Admin', 'Hiring Manager'] %}
+        <a href="/jobs/create" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Create Job
+        </a>
+        {% endif %}
+    </div>
+
+    <form method="GET" action="/jobs" class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+            <div class="flex-1">
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                <input type="text" id="search" name="search" value="{{ filters.search or '' }}" placeholder="Search by title or description..." class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+            </div>
+            <div class="w-full sm:w-48">
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select id="status" name="status" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    <option value="">All Statuses</option>
+                    <option value="Draft" {% if filters.status == 'Draft' %}selected{% endif %}>Draft</option>
+                    <option value="Open" {% if filters.status == 'Open' %}selected{% endif %}>Open</option>
+                    <option value="Closed" {% if filters.status == 'Closed' %}selected{% endif %}>Closed</option>
+                    <option value="On Hold" {% if filters.status == 'On Hold' %}selected{% endif %}>On Hold</option>
+                    <option value="Cancelled" {% if filters.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="w-full sm:w-48">
+                <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                <input type="text" id="department" name="department" value="{{ filters.department or '' }}" placeholder="Filter by department" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    Filter
+                </button>
+                <a href="/jobs" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Clear
+                </a>
+            </div>
+        </div>
+    </form>
+
+    {% if jobs and jobs|length > 0 %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Department</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Hiring Manager</th>
+                    <th>Created</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td>
+                        <a href="/jobs/{{ job.id }}" class="text-primary-600 hover:text-primary-800 font-medium transition-colors">
+                            {{ job.title }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if job.department %}
+                        <span class="text-gray-700">{{ job.department }}</span>
+                        {% else %}
+                        <span class="text-gray-400 italic">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-gray-700">{{ job.location }}</td>
+                    <td>
+                        {% if job.status == 'Open' %}
+                        <span class="status-badge status-open">{{ job.status }}</span>
+                        {% elif job.status == 'Draft' %}
+                        <span class="status-badge status-pending">{{ job.status }}</span>
+                        {% elif job.status == 'Closed' %}
+                        <span class="status-badge status-closed">{{ job.status }}</span>
+                        {% elif job.status == 'On Hold' %}
+                        <span class="status-badge status-pending">{{ job.status }}</span>
+                        {% elif job.status == 'Cancelled' %}
+                        <span class="status-badge status-rejected">{{ job.status }}</span>
+                        {% else %}
+                        <span class="status-badge status-closed">{{ job.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if job.hiring_manager_name %}
+                        <div class="flex items-center gap-2">
+                            <div class="avatar avatar-xs bg-primary-100 text-primary-700">
+                                {{ job.hiring_manager_name[0]|upper }}
+                            </div>
+                            <span class="text-gray-700">{{ job.hiring_manager_name }}</span>
+                        </div>
+                        {% else %}
+                        <span class="text-gray-400 italic">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-gray-500 text-sm whitespace-nowrap">
+                        {{ job.created_at.strftime('%b %d, %Y') if job.created_at else '—' }}
+                    </td>
+                    <td class="text-right">
+                        <a href="/jobs/{{ job.id }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded transition-colors">
+                            View
+                        </a>
+                        {% if user and user.role in ['Admin', 'Hiring Manager'] %}
+                        <a href="/jobs/{{ job.id }}/edit" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded transition-colors ml-1">
+                            Edit
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if pagination %}
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+        <p class="text-sm text-gray-500">
+            Showing <span class="font-medium">{{ ((pagination.page - 1) * pagination.page_size) + 1 }}</span>
+            to <span class="font-medium">{{ [pagination.page * pagination.page_size, pagination.total] | min }}</span>
+            of <span class="font-medium">{{ pagination.total }}</span> results
+        </p>
+        {% if pagination.total_pages > 1 %}
+        <nav class="flex items-center gap-1" aria-label="Pagination">
+            {% if pagination.page > 1 %}
+            <a href="/jobs?page={{ pagination.page - 1 }}{% if filters.status %}&status={{ filters.status }}{% endif %}{% if filters.search %}&search={{ filters.search }}{% endif %}{% if filters.department %}&department={{ filters.department }}{% endif %}" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                Previous
+            </a>
+            {% endif %}
+
+            {% for p in range(1, pagination.total_pages + 1) %}
+                {% if p == pagination.page %}
+                <span class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-md">{{ p }}</span>
+                {% elif p == 1 or p == pagination.total_pages or (p >= pagination.page - 2 and p <= pagination.page + 2) %}
+                <a href="/jobs?page={{ p }}{% if filters.status %}&status={{ filters.status }}{% endif %}{% if filters.search %}&search={{ filters.search }}{% endif %}{% if filters.department %}&department={{ filters.department }}{% endif %}" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">{{ p }}</a>
+                {% elif p == pagination.page - 3 or p == pagination.page + 3 %}
+                <span class="inline-flex items-center px-2 py-1.5 text-sm text-gray-400">…</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.page < pagination.total_pages %}
+            <a href="/jobs?page={{ pagination.page + 1 }}{% if filters.status %}&status={{ filters.status }}{% endif %}{% if filters.search %}&search={{ filters.search }}{% endif %}{% if filters.department %}&department={{ filters.department }}{% endif %}" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                Next
+                <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </a>
+            {% endif %}
+        </nav>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state bg-white border border-gray-200 rounded-lg">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="text-gray-300">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+        </svg>
+        <p class="empty-title">No jobs found</p>
+        <p class="empty-description">
+            {% if filters.status or filters.search or filters.department %}
+            No jobs match your current filters. Try adjusting your search criteria or clearing the filters.
+            {% else %}
+            There are no job postings yet.
+            {% if user and user.role in ['Admin', 'Hiring Manager'] %}
+            Get started by creating your first job posting.
+            {% endif %}
+            {% endif %}
+        </p>
+        {% if user and user.role in ['Admin', 'Hiring Manager'] and not (filters.status or filters.search or filters.department) %}
+        <a href="/jobs/create" class="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Create Job
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

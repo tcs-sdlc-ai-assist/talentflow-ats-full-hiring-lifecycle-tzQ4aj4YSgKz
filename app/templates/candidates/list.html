@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Candidates — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Candidates</h1>
+            <p class="mt-1 text-sm text-gray-500">Manage candidate profiles and track their skills.</p>
+        </div>
+        {% if user and user.role in ['Admin', 'Recruiter'] %}
+        <a href="/candidates/create" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add Candidate
+        </a>
+        {% endif %}
+    </div>
+
+    <form method="GET" action="/candidates" class="bg-white border border-gray-200 rounded-lg p-4">
+        <div class="flex flex-col sm:flex-row gap-3">
+            <div class="flex-1">
+                <label for="search" class="sr-only">Search candidates</label>
+                <div class="relative">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </div>
+                    <input type="text" name="search" id="search" value="{{ search or '' }}" placeholder="Search by name, email, or skill..." class="block w-full rounded-md border border-gray-300 py-2 pl-10 pr-3 text-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Search
+                </button>
+                <a href="/candidates" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Clear
+                </a>
+            </div>
+        </div>
+    </form>
+
+    {% if candidates and candidates|length > 0 %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Skills</th>
+                    <th>Created</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidate in candidates %}
+                <tr>
+                    <td>
+                        <a href="/candidates/{{ candidate.id }}" class="font-medium text-primary-600 hover:text-primary-800 transition-colors">
+                            {{ candidate.first_name }} {{ candidate.last_name }}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="text-gray-600">{{ candidate.email }}</span>
+                    </td>
+                    <td>
+                        {% if candidate.phone %}
+                        <span class="text-gray-600">{{ candidate.phone }}</span>
+                        {% else %}
+                        <span class="text-gray-400">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="flex flex-wrap gap-1">
+                            {% if candidate.skills and candidate.skills|length > 0 %}
+                                {% for skill in candidate.skills[:5] %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    {{ skill.name }}
+                                </span>
+                                {% endfor %}
+                                {% if candidate.skills|length > 5 %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                    +{{ candidate.skills|length - 5 }} more
+                                </span>
+                                {% endif %}
+                            {% else %}
+                            <span class="text-xs text-gray-400">No skills tagged</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-gray-500 text-sm">{{ candidate.created_at.strftime('%b %d, %Y') }}</span>
+                    </td>
+                    <td class="text-right">
+                        <a href="/candidates/{{ candidate.id }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-600 hover:text-primary-800 bg-primary-50 hover:bg-primary-100 rounded-md transition-colors">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if total_pages is defined and total_pages > 1 %}
+    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 rounded-lg" aria-label="Pagination">
+        <div class="hidden sm:block">
+            <p class="text-sm text-gray-700">
+                Showing page <span class="font-medium">{{ page }}</span> of <span class="font-medium">{{ total_pages }}</span>
+                <span class="text-gray-500">({{ total }} candidates total)</span>
+            </p>
+        </div>
+        <div class="flex flex-1 justify-between sm:justify-end gap-2">
+            {% if page > 1 %}
+            <a href="/candidates?page={{ page - 1 }}{% if search %}&search={{ search }}{% endif %}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                Previous
+            </a>
+            {% endif %}
+            {% if page < total_pages %}
+            <a href="/candidates?page={{ page + 1 }}{% if search %}&search={{ search }}{% endif %}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                Next
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state bg-white border border-gray-200 rounded-lg">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-300">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+        </svg>
+        <p class="empty-title">No candidates found</p>
+        {% if search %}
+        <p class="empty-description">No candidates match your search "{{ search }}". Try a different search term or clear the filter.</p>
+        {% else %}
+        <p class="empty-description">Get started by adding your first candidate to the system.</p>
+        {% endif %}
+        {% if user and user.role in ['Admin', 'Recruiter'] %}
+        <a href="/candidates/create" class="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add Candidate
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="flex items-center text-sm text-gray-500 mb-4">
+        <a href="/jobs" class="hover:text-primary-600 transition-colors">Jobs</a>
+        <svg class="h-4 w-4 mx-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+        <span class="text-gray-700">{{ job.title }}</span>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div class="px-6 py-5 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h1 class="text-2xl font-bold text-gray-900">{{ job.title }}</h1>
+                        {% if job.status == 'Draft' %}
+                        <span class="status-badge status-pending">Draft</span>
+                        {% elif job.status == 'Open' %}
+                        <span class="status-badge status-open">Open</span>
+                        {% elif job.status == 'Closed' %}
+                        <span class="status-badge status-closed">Closed</span>
+                        {% elif job.status == 'On Hold' %}
+                        <span class="status-badge" style="background-color: #fef3c7; color: #92400e;">On Hold</span>
+                        {% elif job.status == 'Cancelled' %}
+                        <span class="status-badge status-rejected">Cancelled</span>
+                        {% else %}
+                        <span class="status-badge status-closed">{{ job.status }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        {% if job.department %}
+                        <div class="flex items-center gap-1.5">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+                            </svg>
+                            <span>{{ job.department }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="flex items-center gap-1.5">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                            </svg>
+                            <span>{{ job.location }}</span>
+                        </div>
+                        {% if job.salary_range %}
+                        <div class="flex items-center gap-1.5">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{{ job.salary_range }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="flex items-center gap-1.5">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                            </svg>
+                            <span>Posted {{ job.created_at.strftime('%b %d, %Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    {% if user and user.role in ['Admin', 'Hiring Manager'] %}
+                    <a href="/jobs/{{ job.id }}/edit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                        <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                        Edit
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if user and user.role in ['Admin', 'Hiring Manager'] %}
+        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                <span class="text-sm font-medium text-gray-700">Change Status:</span>
+                <div class="flex flex-wrap gap-2">
+                    {% set statuses = ['Draft', 'Open', 'Closed', 'On Hold', 'Cancelled'] %}
+                    {% for s in statuses %}
+                    {% if s != job.status %}
+                    <form method="POST" action="/jobs/{{ job.id }}/status" class="inline">
+                        <input type="hidden" name="status" value="{{ s }}">
+                        <button type="submit" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1
+                            {% if s == 'Open' %}
+                            text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 focus:ring-blue-500
+                            {% elif s == 'Closed' %}
+                            text-gray-700 bg-gray-100 border border-gray-300 hover:bg-gray-200 focus:ring-gray-500
+                            {% elif s == 'On Hold' %}
+                            text-yellow-700 bg-yellow-50 border border-yellow-200 hover:bg-yellow-100 focus:ring-yellow-500
+                            {% elif s == 'Cancelled' %}
+                            text-red-700 bg-red-50 border border-red-200 hover:bg-red-100 focus:ring-red-500
+                            {% elif s == 'Draft' %}
+                            text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-gray-500
+                            {% endif %}
+                        ">
+                            {{ s }}
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="px-6 py-5">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-3">Job Description</h2>
+                    <div class="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">{{ job.description }}</div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="bg-gray-50 rounded-lg border border-gray-200 p-5 space-y-4">
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Job Details</h3>
+
+                        <div>
+                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Status</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.status }}</dd>
+                        </div>
+
+                        {% if job.department %}
+                        <div>
+                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Department</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.department }}</dd>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Location</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.location }}</dd>
+                        </div>
+
+                        {% if job.salary_range %}
+                        <div>
+                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Salary Range</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.salary_range }}</dd>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Hiring Manager</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {% if hiring_manager %}
+                                {{ hiring_manager.full_name }}
+                                {% else %}
+                                ID: {{ job.hiring_manager_id }}
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Created</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.created_at.strftime('%B %d, %Y at %I:%M %p') }}</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wide">Last Updated</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ job.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">
+                Applications
+                {% if applications %}
+                <span class="ml-2 inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                    {{ applications | length }}
+                </span>
+                {% endif %}
+            </h2>
+            {% if user and user.role in ['Admin', 'Recruiter'] %}
+            <a href="/applications/new?job_id={{ job.id }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Application
+            </a>
+            {% endif %}
+        </div>
+
+        {% if applications and applications | length > 0 %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Candidate</th>
+                        <th>Status</th>
+                        <th>Applied At</th>
+                        <th>Updated At</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td class="font-medium text-gray-900">#{{ app.id }}</td>
+                        <td>
+                            {% if app.candidate %}
+                            <a href="/candidates/{{ app.candidate.id }}" class="text-primary-600 hover:text-primary-800 font-medium transition-colors">
+                                {{ app.candidate.first_name }} {{ app.candidate.last_name }}
+                            </a>
+                            {% else %}
+                            <span class="text-gray-500">Candidate #{{ app.candidate_id }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.status == 'Applied' %}
+                            <span class="status-badge status-open">Applied</span>
+                            {% elif app.status == 'Screening' %}
+                            <span class="status-badge status-pending">Screening</span>
+                            {% elif app.status == 'Interview' %}
+                            <span class="status-badge" style="background-color: #ede9fe; color: #5b21b6;">Interview</span>
+                            {% elif app.status == 'Offer' %}
+                            <span class="status-badge status-active">Offer</span>
+                            {% elif app.status == 'Hired' %}
+                            <span class="status-badge status-active">Hired</span>
+                            {% elif app.status == 'Rejected' %}
+                            <span class="status-badge status-rejected">Rejected</span>
+                            {% elif app.status == 'Withdrawn' %}
+                            <span class="status-badge status-closed">Withdrawn</span>
+                            {% else %}
+                            <span class="status-badge status-closed">{{ app.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-gray-500">{{ app.applied_at.strftime('%b %d, %Y') }}</td>
+                        <td class="text-gray-500">{{ app.updated_at.strftime('%b %d, %Y') }}</td>
+                        <td class="text-right">
+                            <a href="/applications/{{ app.id }}" class="inline-flex items-center px-3 py-1 text-xs font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-md hover:bg-primary-100 transition-colors">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="bg-white border border-gray-200 rounded-lg">
+            <div class="empty-state py-12">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-300">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                <p class="empty-title">No applications yet</p>
+                <p class="empty-description">No candidates have applied for this position yet.</p>
+                {% if user and user.role in ['Admin', 'Recruiter'] %}
+                <a href="/applications/new?job_id={{ job.id }}" class="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Add Application
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-6">
+        <a href="/jobs" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors">
+            <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Back to Jobs
+        </a>
+    </div>
+</div>
+{% endblock %}

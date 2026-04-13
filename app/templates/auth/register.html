@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Register — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md space-y-8">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Create your account</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Already have an account?
+                <a href="/auth/login" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
+                    Sign in here
+                </a>
+            </p>
+        </div>
+
+        {% if error %}
+        <div class="rounded-md bg-red-50 border border-red-200 p-4" role="alert">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-800">{{ error }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-8">
+            <form method="POST" action="/auth/register" class="space-y-6" novalidate>
+                <div class="form-input-group">
+                    <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input
+                        id="full_name"
+                        name="full_name"
+                        type="text"
+                        required
+                        minlength="3"
+                        maxlength="64"
+                        placeholder="Jane Doe"
+                        value="{{ full_name | default('', true) }}"
+                        class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm"
+                    />
+                    <p class="mt-1 text-xs text-gray-500">3–64 characters, letters and spaces only</p>
+                </div>
+
+                <div class="form-input-group">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        minlength="3"
+                        maxlength="32"
+                        placeholder="janedoe"
+                        value="{{ username | default('', true) }}"
+                        class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm"
+                    />
+                    <p class="mt-1 text-xs text-gray-500">3–32 characters, alphanumeric and underscores only</p>
+                </div>
+
+                <div class="form-input-group">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        minlength="8"
+                        placeholder="••••••••"
+                        class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm"
+                    />
+                    <p class="mt-1 text-xs text-gray-500">Minimum 8 characters, no spaces</p>
+                </div>
+
+                <div class="form-input-group">
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    <input
+                        id="confirm_password"
+                        name="confirm_password"
+                        type="password"
+                        required
+                        minlength="8"
+                        placeholder="••••••••"
+                        class="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm"
+                    />
+                </div>
+
+                <div>
+                    <button
+                        type="submit"
+                        class="flex w-full justify-center rounded-md bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+                    >
+                        Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <p class="text-center text-xs text-gray-500">
+            By creating an account, you agree to our
+            <a href="/terms" class="text-primary-600 hover:text-primary-500">Terms of Service</a>
+            and
+            <a href="/privacy" class="text-primary-600 hover:text-primary-500">Privacy Policy</a>.
+        </p>
+    </div>
+</div>
+{% endblock %}

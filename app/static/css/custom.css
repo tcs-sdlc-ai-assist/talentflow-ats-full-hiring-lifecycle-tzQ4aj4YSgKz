@@ -1,0 +1,852 @@
+/* TalentFlow ATS - Custom CSS Overrides */
+/* Supplements Tailwind utility classes with component-specific styles */
+
+/* ============================================
+   Gradient Backgrounds
+   ============================================ */
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.bg-gradient-sidebar {
+    background: linear-gradient(180deg, #1e1b4b 0%, #312e81 50%, #3730a3 100%);
+}
+
+.bg-gradient-header {
+    background: linear-gradient(90deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%);
+}
+
+.bg-gradient-hero {
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #c7d2fe 100%);
+}
+
+/* ============================================
+   Kanban Board Styling
+   ============================================ */
+
+.kanban-board {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    min-height: 70vh;
+    scrollbar-width: thin;
+    scrollbar-color: #c7d2fe #eef2ff;
+}
+
+.kanban-board::-webkit-scrollbar {
+    height: 8px;
+}
+
+.kanban-board::-webkit-scrollbar-track {
+    background: #eef2ff;
+    border-radius: 4px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+    background: #c7d2fe;
+    border-radius: 4px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb:hover {
+    background: #a5b4fc;
+}
+
+.kanban-column {
+    min-width: 300px;
+    max-width: 340px;
+    flex-shrink: 0;
+    background-color: #f8fafc;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 200px);
+}
+
+.kanban-column-header {
+    padding: 0.875rem 1rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid transparent;
+    border-radius: 0.75rem 0.75rem 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: inherit;
+}
+
+.kanban-column-header .count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.375rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-color: rgba(0, 0, 0, 0.08);
+    color: inherit;
+}
+
+.kanban-column-body {
+    padding: 0.75rem;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    scrollbar-width: thin;
+}
+
+.kanban-column-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.kanban-column-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+/* Kanban column color variants */
+.kanban-column[data-stage="applied"] .kanban-column-header {
+    border-bottom-color: #6366f1;
+    color: #4338ca;
+}
+
+.kanban-column[data-stage="screening"] .kanban-column-header {
+    border-bottom-color: #06b6d4;
+    color: #0e7490;
+}
+
+.kanban-column[data-stage="interview"] .kanban-column-header {
+    border-bottom-color: #f59e0b;
+    color: #b45309;
+}
+
+.kanban-column[data-stage="offer"] .kanban-column-header {
+    border-bottom-color: #10b981;
+    color: #047857;
+}
+
+.kanban-column[data-stage="hired"] .kanban-column-header {
+    border-bottom-color: #22c55e;
+    color: #15803d;
+}
+
+.kanban-column[data-stage="rejected"] .kanban-column-header {
+    border-bottom-color: #ef4444;
+    color: #b91c1c;
+}
+
+/* ============================================
+   Card Styles & Hover Effects
+   ============================================ */
+
+.card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+    border-color: #c7d2fe;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+}
+
+.card-clickable {
+    cursor: pointer;
+}
+
+.card-clickable:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.kanban-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    cursor: grab;
+    transition: all 0.15s ease-in-out;
+    position: relative;
+}
+
+.kanban-card:hover {
+    border-color: #a5b4fc;
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+.kanban-card:active {
+    cursor: grabbing;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px) scale(1.01);
+    z-index: 10;
+}
+
+.kanban-card .card-priority-indicator {
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+}
+
+.kanban-card .card-priority-indicator.priority-urgent {
+    background-color: #ef4444;
+}
+
+.kanban-card .card-priority-indicator.priority-high {
+    background-color: #f59e0b;
+}
+
+.kanban-card .card-priority-indicator.priority-medium {
+    background-color: #3b82f6;
+}
+
+.kanban-card .card-priority-indicator.priority-low {
+    background-color: #94a3b8;
+}
+
+/* ============================================
+   Stat Cards & Dashboard Widgets
+   ============================================ */
+
+.stat-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    border-color: #c7d2fe;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+/* ============================================
+   Table Enhancements
+   ============================================ */
+
+.table-container {
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container thead th {
+    background-color: #f8fafc;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.table-container tbody td {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.table-container tbody tr {
+    transition: background-color 0.1s ease-in-out;
+}
+
+.table-container tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table-container tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================
+   Status Badges
+   ============================================ */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.status-badge::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-badge.status-open {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.status-open::before {
+    background-color: #3b82f6;
+}
+
+.status-badge.status-active {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.status-active::before {
+    background-color: #22c55e;
+}
+
+.status-badge.status-closed {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.status-badge.status-closed::before {
+    background-color: #94a3b8;
+}
+
+.status-badge.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.status-pending::before {
+    background-color: #f59e0b;
+}
+
+.status-badge.status-rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.status-rejected::before {
+    background-color: #ef4444;
+}
+
+/* ============================================
+   Avatar & User Display
+   ============================================ */
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 600;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.avatar-xs {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.625rem;
+}
+
+.avatar-sm {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+}
+
+.avatar-md {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 0.875rem;
+}
+
+.avatar-lg {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1rem;
+}
+
+.avatar-xl {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.25rem;
+}
+
+.avatar-group {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.avatar-group .avatar {
+    border: 2px solid #ffffff;
+    margin-left: -0.5rem;
+}
+
+.avatar-group .avatar:last-child {
+    margin-left: 0;
+}
+
+/* ============================================
+   Sidebar Navigation
+   ============================================ */
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.15s ease-in-out;
+    text-decoration: none;
+}
+
+.sidebar-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.sidebar-nav-item.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.sidebar-nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 0 2px 2px 0;
+}
+
+/* ============================================
+   Form Enhancements
+   ============================================ */
+
+.form-input-group {
+    position: relative;
+}
+
+.form-input-group input:focus,
+.form-input-group select:focus,
+.form-input-group textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.375rem;
+}
+
+.form-input-group .error-message {
+    font-size: 0.75rem;
+    color: #dc2626;
+    margin-top: 0.25rem;
+}
+
+/* ============================================
+   Modal & Overlay
+   ============================================ */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 40rem;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.2s ease-out;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-subtle {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.2s ease-out;
+}
+
+.animate-slide-down {
+    animation: slideDown 0.2s ease-out;
+}
+
+.animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* ============================================
+   Pipeline / Progress Indicators
+   ============================================ */
+
+.pipeline-stages {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+}
+
+.pipeline-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.pipeline-stage::after {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: #e2e8f0;
+    z-index: 0;
+}
+
+.pipeline-stage:last-child::after {
+    display: none;
+}
+
+.pipeline-stage.completed::after {
+    background-color: #4f46e5;
+}
+
+.pipeline-stage .stage-dot {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 1;
+    background-color: #e2e8f0;
+    color: #64748b;
+    transition: all 0.2s ease-in-out;
+}
+
+.pipeline-stage.completed .stage-dot {
+    background-color: #4f46e5;
+    color: #ffffff;
+}
+
+.pipeline-stage.current .stage-dot {
+    background-color: #ffffff;
+    color: #4f46e5;
+    border: 2px solid #4f46e5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+.pipeline-stage .stage-label {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.pipeline-stage.completed .stage-label,
+.pipeline-stage.current .stage-label {
+    color: #1e1b4b;
+    font-weight: 500;
+}
+
+/* ============================================
+   Empty States
+   ============================================ */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.empty-state svg {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state .empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.375rem;
+}
+
+.empty-state .empty-description {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    max-width: 24rem;
+}
+
+/* ============================================
+   Dropdown Menus
+   ============================================ */
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0.25rem;
+    min-width: 12rem;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    padding: 0.25rem;
+    animation: slideDown 0.15s ease-out;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #374151;
+    border-radius: 0.375rem;
+    transition: background-color 0.1s ease-in-out;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: left;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f5f9;
+    color: #1e1b4b;
+}
+
+.dropdown-item.danger {
+    color: #dc2626;
+}
+
+.dropdown-item.danger:hover {
+    background-color: #fef2f2;
+    color: #991b1b;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #e2e8f0;
+    margin: 0.25rem 0;
+}
+
+/* ============================================
+   Tooltip
+   ============================================ */
+
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.375rem 0.625rem;
+    background-color: #1e293b;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+    z-index: 60;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* ============================================
+   Loading / Skeleton
+   ============================================ */
+
+.skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 0.375rem;
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .card,
+    .stat-card {
+        box-shadow: none;
+        border: 1px solid #d1d5db;
+    }
+
+    .bg-gradient-sidebar,
+    .bg-gradient-header {
+        background: #374151 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

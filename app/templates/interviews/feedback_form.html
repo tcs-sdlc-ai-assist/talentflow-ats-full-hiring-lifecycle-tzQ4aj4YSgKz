@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Feedback — TalentFlow ATS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <a href="/interviews" class="inline-flex items-center text-sm text-gray-500 hover:text-primary-600 transition-colors">
+            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Back to Interviews
+        </a>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+            <h1 class="text-xl font-semibold text-gray-900">Interview Feedback</h1>
+            <p class="mt-1 text-sm text-gray-500">Submit your feedback for this interview</p>
+        </div>
+
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Interview Details</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% if candidate %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Candidate</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ candidate.first_name }} {{ candidate.last_name }}</dd>
+                </div>
+                {% endif %}
+                {% if job %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Job Position</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ job.title }}</dd>
+                </div>
+                {% endif %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Scheduled At</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ interview.scheduled_at.strftime('%B %d, %Y at %I:%M %p') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Status</dt>
+                    <dd class="mt-1">
+                        {% if interview.feedback_submitted_at %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Feedback Submitted
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Pending Feedback
+                        </span>
+                        {% endif %}
+                    </dd>
+                </div>
+            </div>
+        </div>
+
+        {% if interview.feedback_submitted_at %}
+        <div class="px-6 py-5">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Submitted Feedback</h2>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                <div class="flex items-center gap-1">
+                    {% for i in range(1, 6) %}
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-full text-sm font-semibold {% if i <= interview.feedback_rating %}bg-primary-600 text-white{% else %}bg-gray-100 text-gray-400{% endif %}">
+                        {{ i }}
+                    </span>
+                    {% endfor %}
+                    <span class="ml-3 text-sm text-gray-600">{{ interview.feedback_rating }} / 5</span>
+                </div>
+            </div>
+
+            {% if interview.feedback_notes %}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <div class="bg-gray-50 border border-gray-200 rounded-md p-4 text-sm text-gray-700 whitespace-pre-wrap">{{ interview.feedback_notes }}</div>
+            </div>
+            {% endif %}
+
+            <div class="text-xs text-gray-400 mt-3">
+                Submitted on {{ interview.feedback_submitted_at.strftime('%B %d, %Y at %I:%M %p') }}
+            </div>
+        </div>
+        {% else %}
+        <form method="POST" action="/interviews/{{ interview.id }}/feedback" class="px-6 py-5 space-y-6">
+            {% if error %}
+            <div class="rounded-md bg-red-50 border border-red-200 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-800">{{ error }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-input-group">
+                <label for="rating" class="block text-sm font-medium text-gray-700 mb-2">Rating <span class="text-red-500">*</span></label>
+                <div class="flex items-center gap-2" id="rating-selector">
+                    {% for i in range(1, 6) %}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="rating" value="{{ i }}" class="sr-only peer" {% if form_data and form_data.rating == i %}checked{% endif %} required>
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold border-2 border-gray-200 text-gray-500 peer-checked:border-primary-600 peer-checked:bg-primary-600 peer-checked:text-white hover:border-primary-400 hover:text-primary-600 transition-all">
+                            {{ i }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <p class="mt-1.5 text-xs text-gray-500">1 = Poor, 2 = Below Average, 3 = Average, 4 = Good, 5 = Excellent</p>
+            </div>
+
+            <div class="form-input-group">
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Feedback Notes</label>
+                <p class="text-xs text-gray-500 mb-2">Required when rating is below 3</p>
+                <textarea
+                    id="notes"
+                    name="notes"
+                    rows="6"
+                    class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors"
+                    placeholder="Provide detailed feedback about the candidate's performance, strengths, and areas for improvement..."
+                >{% if form_data and form_data.notes %}{{ form_data.notes }}{% endif %}</textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <a href="/interviews" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Submit Feedback
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
